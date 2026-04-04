@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>Possum Kingdom Lake Map</title>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+<!-- Favorite Bookmark Icon -->
+<link rel="shortcut icon" type="image/ico" href="//www.esri.com/favicon.ico" />
+<link rel="icon" type="image/ico" href="//www.esri.com/favicon.ico" />
+<!-- End Favorite Bookmark Icon --> <link href="/server/rest/static/jsapi-template-main.css" rel="stylesheet" type="text/css"/>
+<link href="https://js.arcgis.com/4.33/esri/css/main.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="https://js.arcgis.com/4.33/"></script>
+<style>
+html,
+body,
+#viewDiv {
+  padding: 0;
+  margin: 0;
+  height: 97.5%;
+  width: 100%;
+}
+</style>
+<script type="text/javascript">
+require([
+"esri/Map",
+"esri/views/MapView",
+"esri/widgets/Home",
+"esri/widgets/ScaleBar",
+"esri/widgets/LayerList",
+"esri/widgets/Legend",
+"esri/widgets/Expand",
+"esri/widgets/Compass",
+"esri/geometry/Extent",
+"esri/layers/MapImageLayer"
+], (
+Map, MapView, Home, ScaleBar, LayerList, Legend,
+Expand, Compass, Extent, MapImageLayer
+) => {
+  const Lake = new MapImageLayer({ url: "https://gis.nwmissouri.edu/server/rest/services/mpirtle/Possum_Kingdom_Lake/MapServer" });
+  const county = new MapImageLayer({ url: "https://gis.nwmissouri.edu/server/rest/services/mpirtle/Texas_County_Pop/MapServer" });
+  const Cross_Timbers_Ecoregion = new MapImageLayer({ url: "https://gis.nwmissouri.edu/server/rest/services/mpirtle/Cross_Timbers_Ecoregion/MapServer" });
+  const Interstate = new MapImageLayer({ url: "https://gis.nwmissouri.edu/server/rest/services/mpirtle/Texas_Interstates/MapServer" });
+  const cities = new MapImageLayer({ url: "https://gis.nwmissouri.edu/server/rest/services/mpirtle/Cities/MapServer" });
+  const map = new Map({ layers: [county, Cross_Timbers_Ecoregion, Interstate, cities, Lake] , basemap: "dark-gray"});
+  const view = new MapView({
+    container: "viewDiv",
+    map: map,
+  });
+  const homeBtn = new Home({
+    view: view
+  });
+  const scaleBar = new ScaleBar({
+    view: view,
+    unit: "dual"
+  });
+  const layerList = new LayerList({
+    view: view
+  });
+  const legend = new Legend({
+    view: view,
+	layerInfos: [
+		{
+			layer: county,
+			title: ""
+		},
+		{ // later one comes on the top in the legend box
+			layer: cities,
+			title: ""
+		},
+		{
+			layer: Interstate,
+			title: ""
+		}
+	]
+  });
+  const layerListExpand = new Expand({
+    view: view,
+    content: layerList,
+    expanded: false,
+    expandTooltip: "Expand LayerList"
+  });
+  const legendExpand = new Expand({
+    view: view,
+    content: legend,
+    expandTooltip: "Expand Legend",
+    expanded: false
+  });
+  const compass = new Compass({
+    view: view,
+    visible: false
+  });
+  view.ui.add(homeBtn, "top-left");
+  view.ui.add(scaleBar, "bottom-right");
+  view.ui.add(layerListExpand, "top-right");
+  view.ui.add(legend, "bottom-left");
+  view.ui.add(compass, "top-left");
+  county.when(() => {
+	view.extent = county.fullExtent
+  });
+  // load the Compass only when the view is rotated
+  view.watch('rotation', function (rotation) {
+    if (rotation && !compass.visible) {
+      compass.visible = true;
+    }
+  });
+});
+</script>
+</head>
+<body>
+<div class="grid-container">
+<div class="item1">
+<p>ArcGIS API for JavaScript: mpirtle/Possum_Kingdom_Lake (MapServer)</p>
+</div>
+<div class="item2">
+<p>Built using the <a class="breadcrumb" href="https://developers.arcgis.com/javascript/" target="sdkView">ArcGIS API for JavaScript</a></p>
+</div>
+</div>
+<div id="viewDiv"></div>
+</body>
+</html>
